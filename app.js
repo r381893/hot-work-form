@@ -321,17 +321,18 @@ function createImageElement(section, sectionData, footerText) {
         font-size: 32px;
         line-height: 2.0;
         box-sizing: border-box;
+        color: #000000;
     `;
 
     container.innerHTML = `
-        <div style="text-align: right; font-size: 48px; font-weight: bold; margin-bottom: 40px; letter-spacing: 5px; color: #333;">動火(${section})</div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">日期：</span><span style="color: #0066cc;">${dateDisplay}</span></div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">公司名稱：</span><span style="color: #0066cc;">${sectionData.company || ''}</span></div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">工作名稱：</span><span style="color: #0066cc;">${sectionData.workName || ''}</span></div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">工作地點：</span><span style="color: #0066cc;">${sectionData.workLocation || ''}</span></div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">作業時間：</span><span style="color: #0066cc;">${sectionData.workTime || ''}</span></div>
-        <div style="margin-bottom: 15px; font-size: 32px;"><span style="font-weight: bold; min-width: 200px; display: inline-block;">動火作業內容：</span><span style="color: #0066cc;">${sectionData.workContent || ''}</span></div>
-        <div style="margin-top: 60px; font-size: 28px; font-weight: bold; line-height: 1.6; color: #333; border-top: 2px solid #ccc; padding-top: 20px;">${footerText}</div>
+        <div style="text-align: right; font-size: 48px; font-weight: bold; margin-bottom: 40px; letter-spacing: 5px; color: #333333;">動火(${section})</div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">日期：</span><span style="color: #0066cc;">${dateDisplay}</span></div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">公司名稱：</span><span style="color: #0066cc;">${sectionData.company || ''}</span></div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">工作名稱：</span><span style="color: #0066cc;">${sectionData.workName || ''}</span></div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">工作地點：</span><span style="color: #0066cc;">${sectionData.workLocation || ''}</span></div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">作業時間：</span><span style="color: #0066cc;">${sectionData.workTime || ''}</span></div>
+        <div style="margin-bottom: 15px; font-size: 32px; color: #000000;"><span style="font-weight: bold; color: #000000;">動火作業內容：</span><span style="color: #0066cc;">${sectionData.workContent || ''}</span></div>
+        <div style="margin-top: 60px; font-size: 28px; font-weight: bold; line-height: 1.6; color: #333333; border-top: 2px solid #cccccc; padding-top: 20px;">${footerText}</div>
     `;
 
     return container;
