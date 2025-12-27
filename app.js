@@ -308,7 +308,7 @@ function createPDFContent(section, sectionData, footerText) {
 </html>`;
 }
 
-// Export single section as PDF using print dialog
+// Export single section as PDF using iframe (iOS compatible)
 function exportSectionPDF(section) {
     const formData = collectFormData();
     let sectionData, footerText, sectionLabel;
@@ -333,13 +333,22 @@ function exportSectionPDF(section) {
 
     const htmlContent = createPDFContent(sectionLabel, sectionData, footerText);
 
-    // Open print window
-    const printWindow = window.open('', '_blank', 'width=900,height=700');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    // Use data URL approach for iOS
+    const blob = new Blob([htmlContent], { type: 'text/html; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
 
-    // Show instructions for mobile
-    showToast('📱 iPhone: 點底部分享按鈕 → 列印 → 雙指放大 → 再分享儲存', 'success');
+    // Open in new tab
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.click();
+
+    // Also try direct navigation as backup
+    setTimeout(() => {
+        window.open(url, '_blank');
+    }, 100);
+
+    showToast('📱 開啟後點分享按鈕 → 列印 → 雙指放大變 PDF', 'success');
 }
 
 // Export all sections as PDF using print dialog
@@ -408,14 +417,22 @@ function exportAllPDF() {
     </div>
 </body>
 </html>`;
+    // Use data URL approach for iOS
+    const blob = new Blob([htmlContent], { type: 'text/html; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
 
-    // Open print window
-    const printWindow = window.open('', '_blank', 'width=900,height=700');
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    // Open in new tab
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.click();
 
-    // Show instructions for mobile
-    showToast('📱 iPhone: 點底部分享按鈕 → 列印 → 雙指放大 → 再分享儲存', 'success');
+    // Also try direct navigation as backup
+    setTimeout(() => {
+        window.open(url, '_blank');
+    }, 100);
+
+    showToast('📱 開啟後點分享按鈕 → 列印 → 雙指放大變 PDF', 'success');
 }
 
 // ========================================
