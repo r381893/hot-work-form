@@ -355,10 +355,23 @@ async function exportSectionPDF(section) {
         const dateStr = new Date().toISOString().slice(0, 10);
         const fileName = `動火${sectionLabel}_${dateStr}.pdf`;
 
-        // Save PDF
-        pdf.save(fileName);
+        // Open PDF in new tab (works better on mobile)
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
 
-        showToast(`PDF 已下載: ${fileName}`, 'success');
+        // Open in new window/tab
+        const newWindow = window.open(pdfUrl, '_blank');
+
+        if (newWindow) {
+            showToast('PDF 已開啟！請點擊分享按鈕儲存', 'success');
+        } else {
+            // If popup blocked, create download link
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = fileName;
+            link.click();
+            showToast(`PDF 已下載: ${fileName}`, 'success');
+        }
     } catch (error) {
         console.error('PDF generation error:', error);
         showToast('PDF 生成失敗，請重試', 'warning');
@@ -430,10 +443,23 @@ async function exportAllPDF() {
         const dateStr = new Date().toISOString().slice(0, 10);
         const fileName = `動火作業單_${dateStr}.pdf`;
 
-        // Save PDF
-        pdf.save(fileName);
+        // Open PDF in new tab (works better on mobile)
+        const pdfBlob = pdf.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
 
-        showToast(`PDF 已下載: ${fileName}`, 'success');
+        // Open in new window/tab
+        const newWindow = window.open(pdfUrl, '_blank');
+
+        if (newWindow) {
+            showToast('PDF 已開啟！請點擊分享按鈕儲存', 'success');
+        } else {
+            // If popup blocked, create download link
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = fileName;
+            link.click();
+            showToast(`PDF 已下載: ${fileName}`, 'success');
+        }
     } catch (error) {
         console.error('PDF generation error:', error);
         showToast('PDF 生成失敗，請重試', 'warning');
