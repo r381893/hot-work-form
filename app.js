@@ -269,39 +269,47 @@ function updateFormsList() {
 // PDF Export Functions (Mobile-friendly direct download)
 // ========================================
 
-// Create PDF page element
-function createPDFPageElement(section, sectionData, footerText) {
+// Create HTML content for PDF - Landscape orientation with large fonts
+function createPDFContent(section, sectionData, footerText) {
     const dateDisplay = formatDate(sectionData.date) || '________________';
 
-    const container = document.createElement('div');
-    container.style.cssText = `
-        width: 1123px;
-        height: 794px;
-        padding: 40px 60px;
-        background: white;
-        font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
-        font-size: 28px;
-        line-height: 2.2;
-        position: relative;
-        box-sizing: border-box;
-    `;
-
-    container.innerHTML = `
-        <div style="text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px;">動火(${section})</div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">日期：</span><span style="color: #0066cc;">${dateDisplay}</span></div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">公司名稱：</span><span style="color: #0066cc;">${sectionData.company || ''}</span></div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">工作名稱：</span><span style="color: #0066cc;">${sectionData.workName || ''}</span></div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">工作地點：</span><span style="color: #0066cc;">${sectionData.workLocation || ''}</span></div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">作業時間：</span><span style="color: #0066cc;">${sectionData.workTime || ''}</span></div>
-        <div style="margin-bottom: 8px; font-size: 28px;"><span style="font-weight: bold; display: inline-block; min-width: 180px;">動火作業內容：</span><span style="color: #0066cc;">${sectionData.workContent || ''}</span></div>
-        <div style="position: absolute; bottom: 40px; left: 60px; right: 60px; font-size: 24px; font-weight: bold; line-height: 1.5;">${footerText}</div>
-    `;
-
-    return container;
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4 landscape; margin: 15mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
+            font-size: 28px;
+            line-height: 2.2;
+            padding: 40px 60px;
+            background: white;
+        }
+        .header { text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px; }
+        .field { margin-bottom: 8px; font-size: 28px; }
+        .label { font-weight: bold; display: inline-block; min-width: 180px; }
+        .value { color: #0066cc; }
+        .footer { margin-top: 80px; font-size: 24px; font-weight: bold; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="header">動火(${section})</div>
+    <div class="field"><span class="label">日期：</span><span class="value">${dateDisplay}</span></div>
+    <div class="field"><span class="label">公司名稱：</span><span class="value">${sectionData.company || ''}</span></div>
+    <div class="field"><span class="label">工作名稱：</span><span class="value">${sectionData.workName || ''}</span></div>
+    <div class="field"><span class="label">工作地點：</span><span class="value">${sectionData.workLocation || ''}</span></div>
+    <div class="field"><span class="label">作業時間：</span><span class="value">${sectionData.workTime || ''}</span></div>
+    <div class="field"><span class="label">動火作業內容：</span><span class="value">${sectionData.workContent || ''}</span></div>
+    <div class="footer">${footerText}</div>
+</body>
+</html>`;
 }
 
-// Export single section as PDF
-async function exportSectionPDF(section) {
+// Export single section as PDF using print dialog
+function exportSectionPDF(section) {
     const formData = collectFormData();
     let sectionData, footerText, sectionLabel;
 
@@ -318,152 +326,96 @@ async function exportSectionPDF(section) {
             break;
         case 'after':
             sectionData = formData.after;
-            footerText = `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
+            footerText = `動火後：現場作業已於<span class="value">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
             sectionLabel = '後';
             break;
     }
 
-    showToast('正在生成 PDF...', 'success');
+    const htmlContent = createPDFContent(sectionLabel, sectionData, footerText);
 
-    // Create temporary container
-    const container = createPDFPageElement(sectionLabel, sectionData, footerText);
-    container.style.position = 'fixed';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    document.body.appendChild(container);
+    // Open print window
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
 
-    try {
-        // Generate canvas from HTML
-        const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#ffffff'
-        });
-
-        // Create PDF (landscape A4)
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('l', 'mm', 'a4');
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdfWidth = 297;
-        const pdfHeight = 210;
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-        // Generate filename
-        const dateStr = new Date().toISOString().slice(0, 10);
-        const fileName = `動火${sectionLabel}_${dateStr}.pdf`;
-
-        // Open PDF in new tab (works better on mobile)
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-
-        // Open in new window/tab
-        const newWindow = window.open(pdfUrl, '_blank');
-
-        if (newWindow) {
-            showToast('PDF 已開啟！請點擊分享按鈕儲存', 'success');
-        } else {
-            // If popup blocked, create download link
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.download = fileName;
-            link.click();
-            showToast(`PDF 已下載: ${fileName}`, 'success');
-        }
-    } catch (error) {
-        console.error('PDF generation error:', error);
-        showToast('PDF 生成失敗，請重試', 'warning');
-    } finally {
-        // Remove temporary container
-        document.body.removeChild(container);
-    }
+    // Show instructions for mobile
+    showToast('📱 iPhone: 點底部分享按鈕 → 列印 → 雙指放大 → 再分享儲存', 'success');
 }
 
-// Export all sections as PDF
-async function exportAllPDF() {
+// Export all sections as PDF using print dialog
+function exportAllPDF() {
     const formData = collectFormData();
 
-    const sections = [
-        {
-            label: '前',
-            data: formData.before,
-            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片'
-        },
-        {
-            label: '中',
-            data: formData.during,
-            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片'
-        },
-        {
-            label: '後',
-            data: formData.after,
-            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`
+    const beforeFooter = '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片';
+    const duringFooter = '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片';
+    const afterFooter = `動火後：現場作業已於<span class="value">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4 landscape; margin: 15mm; }
+        @media print { .page { page-break-after: always; } .page:last-child { page-break-after: auto; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
+            font-size: 28px;
+            line-height: 2.2;
         }
-    ];
-
-    showToast('正在生成 PDF（共3頁）...', 'success');
-
-    try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('l', 'mm', 'a4');
-
-        for (let i = 0; i < sections.length; i++) {
-            const section = sections[i];
-
-            // Create temporary container
-            const container = createPDFPageElement(section.label, section.data, section.footer);
-            container.style.position = 'fixed';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            document.body.appendChild(container);
-
-            // Generate canvas from HTML
-            const canvas = await html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-            if (i > 0) {
-                pdf.addPage();
-            }
-
-            pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210);
-
-            // Remove temporary container
-            document.body.removeChild(container);
+        .page {
+            padding: 40px 60px;
+            background: white;
         }
+        .header { text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px; }
+        .field { margin-bottom: 8px; font-size: 28px; }
+        .label { font-weight: bold; display: inline-block; min-width: 180px; }
+        .value { color: #0066cc; }
+        .footer { margin-top: 80px; font-size: 24px; font-weight: bold; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">動火(前)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.before.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.before.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.before.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.before.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.before.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.before.workContent || ''}</span></div>
+        <div class="footer">${beforeFooter}</div>
+    </div>
+    <div class="page">
+        <div class="header">動火(中)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.during.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.during.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.during.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.during.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.during.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.during.workContent || ''}</span></div>
+        <div class="footer">${duringFooter}</div>
+    </div>
+    <div class="page">
+        <div class="header">動火(後)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.after.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.after.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.after.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.after.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.after.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.after.workContent || ''}</span></div>
+        <div class="footer">${afterFooter}</div>
+    </div>
+</body>
+</html>`;
 
-        // Generate filename
-        const dateStr = new Date().toISOString().slice(0, 10);
-        const fileName = `動火作業單_${dateStr}.pdf`;
+    // Open print window
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
 
-        // Open PDF in new tab (works better on mobile)
-        const pdfBlob = pdf.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-
-        // Open in new window/tab
-        const newWindow = window.open(pdfUrl, '_blank');
-
-        if (newWindow) {
-            showToast('PDF 已開啟！請點擊分享按鈕儲存', 'success');
-        } else {
-            // If popup blocked, create download link
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.download = fileName;
-            link.click();
-            showToast(`PDF 已下載: ${fileName}`, 'success');
-        }
-    } catch (error) {
-        console.error('PDF generation error:', error);
-        showToast('PDF 生成失敗，請重試', 'warning');
-    }
+    // Show instructions for mobile
+    showToast('📱 iPhone: 點底部分享按鈕 → 列印 → 雙指放大 → 再分享儲存', 'success');
 }
 
 // ========================================
