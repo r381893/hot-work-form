@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>動火作業單</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🔥 動火作業單</h1>
+            <div class="form-selector">
+                <select id="savedFormsList">
+                    <option value="">-- 選擇已儲存的表單 --</option>
+                </select>
+                <button id="newFormBtn" class="btn btn-new">+ 新增</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- ======================== -->
+            <!-- 動火(前) -->
+            <!-- ======================== -->
+            <section class="card section-header section-before">
+                <h2 class="section-title">動火(前)</h2>
+            </section>
+
+            <section class="card">
+                <div class="form-group">
+                    <label for="beforeDate">日期</label>
+                    <input type="date" id="beforeDate">
+                </div>
+                <div class="form-group">
+                    <label for="beforeCompany">公司名稱</label>
+                    <input type="text" id="beforeCompany" value="南部發電廠機械組修配課">
+                </div>
+                <div class="form-group">
+                    <label for="beforeWorkName">工作名稱</label>
+                    <input type="text" id="beforeWorkName" placeholder="輸入工作名稱">
+                </div>
+                <div class="form-group">
+                    <label for="beforeWorkLocation">工作地點</label>
+                    <input type="text" id="beforeWorkLocation" placeholder="輸入工作地點">
+                </div>
+                <div class="form-group">
+                    <label>作業時間</label>
+                    <div class="time-range">
+                        <select id="beforeWorkTimeStart">
+                            <option value="">開始時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                        <span class="time-separator">~</span>
+                        <select id="beforeWorkTimeEnd">
+                            <option value="">結束時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="beforeWorkContent">動火作業內容</label>
+                    <textarea id="beforeWorkContent" rows="4" placeholder="輸入動火作業內容"></textarea>
+                </div>
+                <div class="footer-note before">
+                    <strong>動火前：</strong>氣體測定數值正常、已置備防火毯、滅火器.. 如附相片
+                </div>
+                <button class="btn btn-export-section" data-section="before">📄 匯出「動火(前)」PDF</button>
+            </section>
+
+            <!-- ======================== -->
+            <!-- 動火(中) -->
+            <!-- ======================== -->
+            <section class="card section-header section-during">
+                <h2 class="section-title">動火(中)</h2>
+            </section>
+
+            <section class="card">
+                <div class="form-group">
+                    <label for="duringDate">日期</label>
+                    <input type="date" id="duringDate">
+                </div>
+                <div class="form-group">
+                    <label for="duringCompany">公司名稱</label>
+                    <input type="text" id="duringCompany" value="南部發電廠機械組修配課">
+                </div>
+                <div class="form-group">
+                    <label for="duringWorkName">工作名稱</label>
+                    <input type="text" id="duringWorkName" placeholder="輸入工作名稱">
+                </div>
+                <div class="form-group">
+                    <label for="duringWorkLocation">工作地點</label>
+                    <input type="text" id="duringWorkLocation" placeholder="輸入工作地點">
+                </div>
+                <div class="form-group">
+                    <label>作業時間</label>
+                    <div class="time-range">
+                        <select id="duringWorkTimeStart">
+                            <option value="">開始時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                        <span class="time-separator">~</span>
+                        <select id="duringWorkTimeEnd">
+                            <option value="">結束時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="duringWorkContent">動火作業內容</label>
+                    <textarea id="duringWorkContent" rows="4" placeholder="輸入動火作業內容"></textarea>
+                </div>
+                <div class="footer-note during">
+                    <strong>動火中：</strong>檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片
+                </div>
+                <button class="btn btn-export-section" data-section="during">📄 匯出「動火(中)」PDF</button>
+            </section>
+
+            <!-- ======================== -->
+            <!-- 動火(後) -->
+            <!-- ======================== -->
+            <section class="card section-header section-after">
+                <h2 class="section-title">動火(後)</h2>
+            </section>
+
+            <section class="card">
+                <div class="form-group">
+                    <label for="afterDate">日期</label>
+                    <input type="date" id="afterDate">
+                </div>
+                <div class="form-group">
+                    <label for="afterCompany">公司名稱</label>
+                    <input type="text" id="afterCompany" value="南部發電廠機械組修配課">
+                </div>
+                <div class="form-group">
+                    <label for="afterWorkName">工作名稱</label>
+                    <input type="text" id="afterWorkName" placeholder="輸入工作名稱">
+                </div>
+                <div class="form-group">
+                    <label for="afterWorkLocation">工作地點</label>
+                    <input type="text" id="afterWorkLocation" placeholder="輸入工作地點">
+                </div>
+                <div class="form-group">
+                    <label>作業時間</label>
+                    <div class="time-range">
+                        <select id="afterWorkTimeStart">
+                            <option value="">開始時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                        <span class="time-separator">~</span>
+                        <select id="afterWorkTimeEnd">
+                            <option value="">結束時間</option>
+                            <option value="07:00">07:00</option>
+                            <option value="07:30">07:30</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="afterWorkContent">動火作業內容</label>
+                    <textarea id="afterWorkContent" rows="4" placeholder="輸入動火作業內容"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="afterCompleteTime">完成時間</label>
+                    <select id="afterCompleteTime">
+                        <option value="">選擇完成時間</option>
+                        <option value="07:00">07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                    </select>
+                </div>
+                <div class="footer-note after">
+                    <strong>動火後：</strong>現場作業已於<span
+                        class="complete-time-display"></span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片
+                </div>
+                <button class="btn btn-export-section" data-section="after">📄 匯出「動火(後)」PDF</button>
+            </section>
+
+        </main>
+
+        <!-- Footer Actions -->
+        <footer class="footer">
+            <button id="saveBtn" class="btn btn-save">
+                💾 儲存
+            </button>
+            <button id="exportAllBtn" class="btn btn-export">
+                📄 全部匯出
+            </button>
+            <button id="deleteBtn" class="btn btn-delete">
+                🗑️ 刪除
+            </button>
+        </footer>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
