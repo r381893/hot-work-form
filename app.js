@@ -269,7 +269,7 @@ function updateFormsList() {
 // PDF Export Functions (Mobile-friendly direct download)
 // ========================================
 
-// Create HTML content for PDF - Landscape orientation with large fonts
+// Create HTML content for PDF - Landscape orientation
 function createPDFContent(section, sectionData, footerText) {
     const dateDisplay = formatDate(sectionData.date) || '________________';
 
@@ -281,48 +281,48 @@ function createPDFContent(section, sectionData, footerText) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>動火(${section})</title>
     <style>
-        @page { size: A4 landscape; margin: 15mm; }
+        @page { size: A4 landscape; margin: 10mm; }
         @media print { 
             .no-print { display: none !important; }
-            body { padding: 40px 60px; }
+            body { padding: 20px 30px; font-size: 16px; }
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
-            font-size: 28px;
-            line-height: 2.2;
-            padding: 20px;
+            font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            padding: 15px;
             background: white;
         }
         .help-bar {
             background: #4CAF50;
             color: white;
-            padding: 15px 20px;
-            margin-bottom: 30px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             border-radius: 8px;
             text-align: center;
             font-family: sans-serif;
-            font-size: 16px;
+            font-size: 14px;
         }
         .help-bar button {
             background: white;
             color: #4CAF50;
             border: none;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 5px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            margin-left: 15px;
+            margin-left: 10px;
             cursor: pointer;
         }
         .content {
-            padding: 20px 40px;
+            padding: 10px 20px;
         }
-        .header { text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px; }
-        .field { margin-bottom: 8px; font-size: 28px; }
-        .label { font-weight: bold; display: inline-block; min-width: 180px; }
+        .header { text-align: right; font-size: 24px; font-weight: bold; margin-bottom: 20px; letter-spacing: 3px; }
+        .field { margin-bottom: 6px; font-size: 16px; display: flex; flex-wrap: wrap; }
+        .label { font-weight: bold; min-width: 120px; }
         .value { color: #0066cc; }
-        .footer { margin-top: 80px; font-size: 24px; font-weight: bold; line-height: 1.5; }
+        .footer { margin-top: 30px; font-size: 14px; font-weight: bold; line-height: 1.5; }
     </style>
 </head>
 <body>
