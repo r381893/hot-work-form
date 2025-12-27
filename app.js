@@ -278,15 +278,45 @@ function createPDFContent(section, sectionData, footerText) {
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>動火(${section})</title>
     <style>
         @page { size: A4 landscape; margin: 15mm; }
+        @media print { 
+            .no-print { display: none !important; }
+            body { padding: 40px 60px; }
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
             font-size: 28px;
             line-height: 2.2;
-            padding: 40px 60px;
+            padding: 20px;
             background: white;
+        }
+        .help-bar {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: sans-serif;
+            font-size: 16px;
+        }
+        .help-bar button {
+            background: white;
+            color: #4CAF50;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        .content {
+            padding: 20px 40px;
         }
         .header { text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px; }
         .field { margin-bottom: 8px; font-size: 28px; }
@@ -296,17 +326,24 @@ function createPDFContent(section, sectionData, footerText) {
     </style>
 </head>
 <body>
-    <div class="header">動火(${section})</div>
-    <div class="field"><span class="label">日期：</span><span class="value">${dateDisplay}</span></div>
-    <div class="field"><span class="label">公司名稱：</span><span class="value">${sectionData.company || ''}</span></div>
-    <div class="field"><span class="label">工作名稱：</span><span class="value">${sectionData.workName || ''}</span></div>
-    <div class="field"><span class="label">工作地點：</span><span class="value">${sectionData.workLocation || ''}</span></div>
-    <div class="field"><span class="label">作業時間：</span><span class="value">${sectionData.workTime || ''}</span></div>
-    <div class="field"><span class="label">動火作業內容：</span><span class="value">${sectionData.workContent || ''}</span></div>
-    <div class="footer">${footerText}</div>
+    <div class="help-bar no-print">
+        📱 點擊按鈕儲存 PDF
+        <button onclick="window.print()">儲存 PDF</button>
+    </div>
+    <div class="content">
+        <div class="header">動火(${section})</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${dateDisplay}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${sectionData.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${sectionData.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${sectionData.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${sectionData.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${sectionData.workContent || ''}</span></div>
+        <div class="footer">${footerText}</div>
+    </div>
 </body>
 </html>`;
 }
+
 
 // Create image content element
 function createImageElement(section, sectionData, footerText) {
