@@ -339,8 +339,8 @@ function createImageElement(section, sectionData, footerText) {
     return container;
 }
 
-// Export single section as PNG image (mobile friendly)
-async function exportSectionPDF(section) {
+// Export single section as PDF
+function exportSectionPDF(section) {
     const formData = collectFormData();
     let sectionData, footerText, sectionLabel;
 
@@ -357,145 +357,94 @@ async function exportSectionPDF(section) {
             break;
         case 'after':
             sectionData = formData.after;
-            footerText = `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
+            footerText = `動火後：現場作業已於<span class="value">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
             sectionLabel = '後';
             break;
     }
 
-    showToast('正在生成圖片...', 'success');
+    const htmlContent = createPDFContent(sectionLabel, sectionData, footerText);
 
-    // Create container
-    const container = createImageElement(sectionLabel, sectionData, footerText);
-    container.style.position = 'fixed';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    document.body.appendChild(container);
+    // Open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
 
-    try {
-        // Generate canvas
-        const canvas = await html2canvas(container, {
-            scale: 2,
-            backgroundColor: '#ffffff',
-            logging: false
-        });
-
-        // Convert to data URL
-        const imageUrl = canvas.toDataURL('image/png');
-
-        // Open image in new tab - user can long press to save on mobile
-        const newWindow = window.open();
-        newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>動火${sectionLabel}</title>
-                <style>
-                    body { margin: 0; padding: 20px; background: #f0f0f0; text-align: center; }
-                    img { max-width: 100%; height: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-                    .tip { margin: 20px 0; font-size: 18px; color: #666; font-family: sans-serif; }
-                </style>
-            </head>
-            <body>
-                <div class="tip">📱 長按圖片可儲存到相簿</div>
-                <img src="${imageUrl}" alt="動火${sectionLabel}">
-            </body>
-            </html>
-        `);
-        newWindow.document.close();
-
-        showToast('📱 長按圖片可儲存到相簿', 'success');
-    } catch (error) {
-        console.error('Image generation error:', error);
-        showToast('圖片生成失敗，請重試', 'warning');
-    } finally {
-        document.body.removeChild(container);
-    }
+    showToast('📱 iPhone: 分享 → 列印 → 雙指放大 → 再分享儲存', 'success');
 }
 
-// Export all sections as PNG images (mobile friendly)
-async function exportAllPDF() {
+// Export all sections as PDF
+function exportAllPDF() {
     const formData = collectFormData();
 
-    const sections = [
-        {
-            label: '前',
-            data: formData.before,
-            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片'
-        },
-        {
-            label: '中',
-            data: formData.during,
-            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片'
-        },
-        {
-            label: '後',
-            data: formData.after,
-            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`
+    const beforeFooter = '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片';
+    const duringFooter = '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片';
+    const afterFooter = `動火後：現場作業已於<span class="value">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4 landscape; margin: 15mm; }
+        @media print { .page { page-break-after: always; } .page:last-child { page-break-after: auto; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
+            font-size: 28px;
+            line-height: 2.2;
         }
-    ];
-
-    showToast('正在生成圖片（共3張）...', 'success');
-
-    const imageUrls = [];
-
-    try {
-        for (const section of sections) {
-            // Create container
-            const container = createImageElement(section.label, section.data, section.footer);
-            container.style.position = 'fixed';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            document.body.appendChild(container);
-
-            // Generate canvas
-            const canvas = await html2canvas(container, {
-                scale: 2,
-                backgroundColor: '#ffffff',
-                logging: false
-            });
-
-            imageUrls.push({
-                label: section.label,
-                url: canvas.toDataURL('image/png')
-            });
-
-            document.body.removeChild(container);
+        .page {
+            padding: 40px 60px;
+            background: white;
         }
+        .header { text-align: right; font-size: 42px; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px; }
+        .field { margin-bottom: 8px; font-size: 28px; }
+        .label { font-weight: bold; display: inline-block; min-width: 180px; }
+        .value { color: #0066cc; }
+        .footer { margin-top: 80px; font-size: 24px; font-weight: bold; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">動火(前)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.before.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.before.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.before.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.before.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.before.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.before.workContent || ''}</span></div>
+        <div class="footer">${beforeFooter}</div>
+    </div>
+    <div class="page">
+        <div class="header">動火(中)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.during.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.during.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.during.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.during.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.during.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.during.workContent || ''}</span></div>
+        <div class="footer">${duringFooter}</div>
+    </div>
+    <div class="page">
+        <div class="header">動火(後)</div>
+        <div class="field"><span class="label">日期：</span><span class="value">${formatDate(formData.after.date) || ''}</span></div>
+        <div class="field"><span class="label">公司名稱：</span><span class="value">${formData.after.company || ''}</span></div>
+        <div class="field"><span class="label">工作名稱：</span><span class="value">${formData.after.workName || ''}</span></div>
+        <div class="field"><span class="label">工作地點：</span><span class="value">${formData.after.workLocation || ''}</span></div>
+        <div class="field"><span class="label">作業時間：</span><span class="value">${formData.after.workTime || ''}</span></div>
+        <div class="field"><span class="label">動火作業內容：</span><span class="value">${formData.after.workContent || ''}</span></div>
+        <div class="footer">${afterFooter}</div>
+    </div>
+</body>
+</html>`;
 
-        // Open all images in new window
-        const newWindow = window.open();
-        newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>動火作業單</title>
-                <style>
-                    body { margin: 0; padding: 20px; background: #f0f0f0; text-align: center; }
-                    img { max-width: 100%; height: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin-bottom: 30px; }
-                    .tip { margin: 20px 0; font-size: 18px; color: #666; font-family: sans-serif; }
-                    h2 { font-family: sans-serif; color: #333; margin: 30px 0 15px; }
-                </style>
-            </head>
-            <body>
-                <div class="tip">📱 長按圖片可儲存到相簿</div>
-                ${imageUrls.map(img => `
-                    <h2>動火(${img.label})</h2>
-                    <img src="${img.url}" alt="動火${img.label}">
-                `).join('')}
-            </body>
-            </html>
-        `);
-        newWindow.document.close();
+    // Open in new window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
 
-        showToast('📱 長按圖片可儲存到相簿', 'success');
-    } catch (error) {
-        console.error('Image generation error:', error);
-        showToast('圖片生成失敗，請重試', 'warning');
-    }
+    showToast('📱 iPhone: 分享 → 列印 → 雙指放大 → 再分享儲存', 'success');
 }
 
 // ========================================
