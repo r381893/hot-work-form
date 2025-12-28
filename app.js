@@ -17,7 +17,6 @@ const elements = {
     savedFormsList: document.getElementById('savedFormsList'),
     newFormBtn: document.getElementById('newFormBtn'),
     saveBtn: document.getElementById('saveBtn'),
-    exportAllBtn: document.getElementById('exportAllBtn'),
     exportAllImageBtn: document.getElementById('exportAllImageBtn'),
     deleteBtn: document.getElementById('deleteBtn'),
 
@@ -279,36 +278,7 @@ function updateFormsList() {
  * @param {HTMLElement} element - The element to render
  * @param {string} filename - The output filename
  */
-async function generatePDF(element, filename) {
-    const { jsPDF } = window.jspdf;
-
-    try {
-        const canvas = await html2canvas(element, {
-            scale: 2, // Higher quality
-            useCORS: true,
-            logging: false,
-            // Force A4 landscape dimensions (approx at 96dpi)
-            // 297mm = 1122.5px, 210mm = 793.7px
-            windowWidth: 1123,
-            windowHeight: 794
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-        // A4 landscape size: 297mm x 210mm
-        const pdf = new jsPDF('l', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(filename);
-
-        return true;
-    } catch (err) {
-        console.error('PDF export failed:', err);
-        throw err;
-    }
-}
+// Function removed as per user request to use Image export only
 
 /**
  * Create the printable element for export
@@ -365,120 +335,8 @@ function createExportElement(section, sectionData, footerText) {
     return container;
 }
 
-// Export single section as PDF
-async function exportSectionPDF(section) {
-    const formData = collectFormData();
-    let sectionData, footerText, sectionLabel;
-
-    switch (section) {
-        case 'before':
-            sectionData = formData.before;
-            footerText = '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片';
-            sectionLabel = '前';
-            break;
-        case 'during':
-            sectionData = formData.during;
-            footerText = '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片';
-            sectionLabel = '中';
-            break;
-        case 'after':
-            sectionData = formData.after;
-            footerText = `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
-            sectionLabel = '後';
-            break;
-    }
-
-    showToast('正在產生 PDF，請稍候...', 'info');
-    const exportContainer = document.getElementById('export-container');
-    exportContainer.innerHTML = ''; // Clear previous
-
-    const content = createExportElement(sectionLabel, sectionData, footerText);
-    exportContainer.appendChild(content);
-
-    // Wait for DOM update
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    try {
-        const filename = `動火作業單-${sectionLabel}-${formatDate(sectionData.date) || 'unknown'}.pdf`;
-        await generatePDF(exportContainer, filename);
-        showToast('PDF 下載完成！', 'success');
-    } catch (error) {
-        showToast('PDF 產生失敗', 'error');
-    } finally {
-        exportContainer.innerHTML = ''; // Cleanup
-    }
-}
-
-// Export all sections as PDF
-async function exportAllPDF() {
-    const formData = collectFormData();
-    const { jsPDF } = window.jspdf;
-
-    const sections = [
-        {
-            label: '前',
-            data: formData.before,
-            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片'
-        },
-        {
-            label: '中',
-            data: formData.during,
-            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片'
-        },
-        {
-            label: '後',
-            data: formData.after,
-            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`
-        }
-    ];
-
-    showToast('正在產生完整 PDF，請稍候...', 'info');
-    const exportContainer = document.getElementById('export-container');
-
-    // Create PDF instance
-    const pdf = new jsPDF('l', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-
-    try {
-        for (let i = 0; i < sections.length; i++) {
-            const section = sections[i];
-
-            // Clear and prepare container
-            exportContainer.innerHTML = '';
-            const content = createExportElement(section.label, section.data, section.footer);
-            exportContainer.appendChild(content);
-
-            // Wait for DOM
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            // Capture
-            const canvas = await html2canvas(exportContainer, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                windowWidth: 1123,
-                windowHeight: 794
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-            // Add to PDF
-            if (i > 0) pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        }
-
-        const filename = `動火作業單-完整-${formatDate(formData.before.date) || 'unknown'}.pdf`;
-        pdf.save(filename);
-        showToast('完整 PDF 下載完成！', 'success');
-
-    } catch (err) {
-        console.error('Export all failed:', err);
-        showToast('產生 PDF 失敗', 'error');
-    } finally {
-        exportContainer.innerHTML = ''; // Cleanup
-    }
-}
+// Export single section as PDF - REMOVED
+// Export all sections as PDF - REMOVED
 
 // Export single section as Image (JPG)
 async function exportSectionImage(section) {
@@ -638,19 +496,10 @@ function initEventListeners() {
         showToast('表單已儲存', 'success');
     });
 
-    // Export all PDF
-    elements.exportAllBtn.addEventListener('click', exportAllPDF);
 
     // Export all Images
     elements.exportAllImageBtn.addEventListener('click', exportAllImages);
 
-    // Export individual sections (PDF)
-    document.querySelectorAll('.btn-export-section').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const section = e.target.dataset.section;
-            exportSectionPDF(section);
-        });
-    });
 
     // Export individual sections (Image)
     document.querySelectorAll('.btn-export-image').forEach(btn => {

@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>動火作業單</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
@@ -117,11 +116,8 @@
                 <div class="footer-note before">
                     <strong>動火前：</strong>氣體測定數值正常、已置備防火毯、滅火器.. 如附相片
                 </div>
-                <div class="button-group">
-                    <button class="btn btn-export-section" data-section="before">📄 匯出 PDF</button>
-                    <button class="btn btn-export-image" data-section="before" style="background-color: #ff9800;">📷
-                        匯出圖片 (LINE)</button>
-                </div>
+                <button class="btn btn-export-image" data-section="before"
+                    style="background-color: #ff9800; width: 100%; margin-top: 16px;">📷 匯出圖片 (Line)</button>
             </section>
 
             <!-- ======================== -->
@@ -213,11 +209,8 @@
                 <div class="footer-note during">
                     <strong>動火中：</strong>檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片
                 </div>
-                <div class="button-group">
-                    <button class="btn btn-export-section" data-section="during">📄 匯出 PDF</button>
-                    <button class="btn btn-export-image" data-section="during" style="background-color: #ff9800;">📷
-                        匯出圖片 (LINE)</button>
-                </div>
+                <button class="btn btn-export-image" data-section="during"
+                    style="background-color: #ff9800; width: 100%; margin-top: 16px;">📷 匯出圖片 (Line)</button>
             </section>
 
             <!-- ======================== -->
@@ -339,11 +332,8 @@
                     <strong>動火後：</strong>現場作業已於<span
                         class="complete-time-display"></span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片
                 </div>
-                <div class="button-group">
-                    <button class="btn btn-export-section" data-section="after">📄 匯出 PDF</button>
-                    <button class="btn btn-export-image" data-section="after" style="background-color: #ff9800;">📷 匯出圖片
-                        (LINE)</button>
-                </div>
+                <button class="btn btn-export-image" data-section="after"
+                    style="background-color: #ff9800; width: 100%; margin-top: 16px;">📷 匯出圖片 (Line)</button>
             </section>
 
         </main>
@@ -352,9 +342,6 @@
         <footer class="footer">
             <button id="saveBtn" class="btn btn-save">
                 💾 儲存
-            </button>
-            <button id="exportAllBtn" class="btn btn-export">
-                📄 全部 PDF
             </button>
             <button id="exportAllImageBtn" class="btn btn-export" style="background-color: #ff9800;">
                 📷 全部圖片
