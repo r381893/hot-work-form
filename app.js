@@ -49,7 +49,13 @@ const elements = {
     afterCompleteTime: document.getElementById('afterCompleteTime'),
 
     // Toast
-    toast: document.getElementById('toast')
+    toast: document.getElementById('toast'),
+
+    // Modal
+    imagePreviewModal: document.getElementById('imagePreviewModal'),
+    modalImageContainer: document.getElementById('modalImageContainer'),
+    closeModalBtn: document.querySelector('.close-modal'),
+    downloadImageBtn: document.getElementById('downloadImageBtn')
 };
 
 // ========================================
@@ -338,7 +344,7 @@ function createExportElement(section, sectionData, footerText) {
 // Export single section as PDF - REMOVED
 // Export all sections as PDF - REMOVED
 
-// Export single section as Image (JPG)
+// Export single section as Image (JPG) with Modal Preview
 async function exportSectionImage(section) {
     const formData = collectFormData();
     let sectionData, footerText, sectionLabel;
@@ -380,18 +386,36 @@ async function exportSectionImage(section) {
             windowHeight: 794
         });
 
-        const link = document.createElement('a');
-        link.download = `動火作業單-${sectionLabel}-${formatDate(sectionData.date) || 'unknown'}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        link.click();
+        const imgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const filename = `動火作業單-${sectionLabel}-${formatDate(sectionData.date) || 'unknown'}.jpg`;
 
-        showToast('圖片下載完成！', 'success');
+        // Show Modal
+        showImageModal(imgDataUrl, filename);
+
+        showToast('圖片已產生！長按圖片可分享', 'success');
     } catch (error) {
         console.error('Image export failed:', error);
         showToast('圖片產生失敗', 'error');
     } finally {
         exportContainer.innerHTML = ''; // Cleanup
     }
+}
+
+function showImageModal(imgDataUrl, filename) {
+    const img = document.createElement('img');
+    img.src = imgDataUrl;
+    elements.modalImageContainer.innerHTML = '';
+    elements.modalImageContainer.appendChild(img);
+
+    elements.imagePreviewModal.style.display = 'block';
+
+    // Update download button action
+    elements.downloadImageBtn.onclick = () => {
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = imgDataUrl;
+        link.click();
+    };
 }
 
 // Export all sections as Images (Zip or multiple downloads - using multiple downloads for simplicity on mobile)
@@ -419,10 +443,16 @@ async function exportAllImages() {
         }
     ];
 
-    showToast('正在產生圖片，請允許下載多個檔案...', 'info');
+    showToast('正在產生圖片...', 'info');
     const exportContainer = document.getElementById('export-container');
 
     try {
+        // Only show the first one in modal if multiples, or implement a gallery?
+        // For simplicity, let's just create individual downloads for "Export All" as requested before, 
+        // to avoid complex gallery implementation. Or maybe just show the BEFORE one?
+        // Let's keep the previous behavior for "Export All" (Download All) but maybe prompt.
+        // Actually, user use-case is likely single export. Let's keep "Export All" as direct download to avoid blocking.
+
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
 
@@ -545,6 +575,17 @@ function initEventListeners() {
                 }, 1000);
             }
         });
+    });
+
+    // Modal Events
+    elements.closeModalBtn.addEventListener('click', () => {
+        elements.imagePreviewModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === elements.imagePreviewModal) {
+            elements.imagePreviewModal.style.display = 'none';
+        }
     });
 }
 
