@@ -18,6 +18,7 @@ const elements = {
     newFormBtn: document.getElementById('newFormBtn'),
     saveBtn: document.getElementById('saveBtn'),
     exportAllBtn: document.getElementById('exportAllBtn'),
+    exportAllImageBtn: document.getElementById('exportAllImageBtn'),
     deleteBtn: document.getElementById('deleteBtn'),
 
     // Before (動火前)
@@ -280,7 +281,7 @@ function updateFormsList() {
  */
 async function generatePDF(element, filename) {
     const { jsPDF } = window.jspdf;
-    
+
     try {
         const canvas = await html2canvas(element, {
             scale: 2, // Higher quality
@@ -288,20 +289,20 @@ async function generatePDF(element, filename) {
             logging: false,
             // Force A4 landscape dimensions (approx at 96dpi)
             // 297mm = 1122.5px, 210mm = 793.7px
-            windowWidth: 1123, 
+            windowWidth: 1123,
             windowHeight: 794
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        
+
         // A4 landscape size: 297mm x 210mm
         const pdf = new jsPDF('l', 'mm', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        
+
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         pdf.save(filename);
-        
+
         return true;
     } catch (err) {
         console.error('PDF export failed:', err);
@@ -314,7 +315,7 @@ async function generatePDF(element, filename) {
  */
 function createExportElement(section, sectionData, footerText) {
     const dateDisplay = formatDate(sectionData.date) || '________________';
-    
+
     // Create a container that mimics the A4 landscape layout
     const container = document.createElement('div');
     container.style.cssText = `
@@ -327,7 +328,7 @@ function createExportElement(section, sectionData, footerText) {
         position: relative;
         color: #000;
     `;
-    
+
     container.innerHTML = `
         <div style="text-align: right; font-size: 24pt; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px;">動火(${section})</div>
         
@@ -360,7 +361,7 @@ function createExportElement(section, sectionData, footerText) {
 
         <div style="margin-top: 60px; font-size: 14pt; font-weight: bold; line-height: 1.5;">${footerText}</div>
     `;
-    
+
     return container;
 }
 
@@ -390,7 +391,7 @@ async function exportSectionPDF(section) {
     showToast('正在產生 PDF，請稍候...', 'info');
     const exportContainer = document.getElementById('export-container');
     exportContainer.innerHTML = ''; // Clear previous
-    
+
     const content = createExportElement(sectionLabel, sectionData, footerText);
     exportContainer.appendChild(content);
 
@@ -414,26 +415,26 @@ async function exportAllPDF() {
     const { jsPDF } = window.jspdf;
 
     const sections = [
-        { 
-            label: '前', 
-            data: formData.before, 
-            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片' 
+        {
+            label: '前',
+            data: formData.before,
+            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片'
         },
-        { 
-            label: '中', 
-            data: formData.during, 
-            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片' 
+        {
+            label: '中',
+            data: formData.during,
+            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片'
         },
-        { 
-            label: '後', 
-            data: formData.after, 
-            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片` 
+        {
+            label: '後',
+            data: formData.after,
+            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`
         }
     ];
 
     showToast('正在產生完整 PDF，請稍候...', 'info');
     const exportContainer = document.getElementById('export-container');
-    
+
     // Create PDF instance
     const pdf = new jsPDF('l', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -442,7 +443,7 @@ async function exportAllPDF() {
     try {
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
-            
+
             // Clear and prepare container
             exportContainer.innerHTML = '';
             const content = createExportElement(section.label, section.data, section.footer);
@@ -476,6 +477,130 @@ async function exportAllPDF() {
         showToast('產生 PDF 失敗', 'error');
     } finally {
         exportContainer.innerHTML = ''; // Cleanup
+    }
+}
+
+// Export single section as Image (JPG)
+async function exportSectionImage(section) {
+    const formData = collectFormData();
+    let sectionData, footerText, sectionLabel;
+
+    switch (section) {
+        case 'before':
+            sectionData = formData.before;
+            footerText = '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片';
+            sectionLabel = '前';
+            break;
+        case 'during':
+            sectionData = formData.during;
+            footerText = '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片';
+            sectionLabel = '中';
+            break;
+        case 'after':
+            sectionData = formData.after;
+            footerText = `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`;
+            sectionLabel = '後';
+            break;
+    }
+
+    showToast('正在產生圖片，請稍候...', 'info');
+    const exportContainer = document.getElementById('export-container');
+    exportContainer.innerHTML = ''; // Clear previous
+
+    const content = createExportElement(sectionLabel, sectionData, footerText);
+    exportContainer.appendChild(content);
+
+    // Wait for DOM update
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    try {
+        const canvas = await html2canvas(exportContainer, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            windowWidth: 1123,
+            windowHeight: 794
+        });
+
+        const link = document.createElement('a');
+        link.download = `動火作業單-${sectionLabel}-${formatDate(sectionData.date) || 'unknown'}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+
+        showToast('圖片下載完成！', 'success');
+    } catch (error) {
+        console.error('Image export failed:', error);
+        showToast('圖片產生失敗', 'error');
+    } finally {
+        exportContainer.innerHTML = ''; // Cleanup
+    }
+}
+
+// Export all sections as Images (Zip or multiple downloads - using multiple downloads for simplicity on mobile)
+async function exportAllImages() {
+    const formData = collectFormData();
+
+    const sections = [
+        {
+            label: '前',
+            sectionId: 'before',
+            data: formData.before,
+            footer: '動火前：氣體測定數值正常、已置備防火毯、滅火器.. 如附相片'
+        },
+        {
+            label: '中',
+            sectionId: 'during',
+            data: formData.during,
+            footer: '動火中：檢附核准之動火許可單、現場電焊中，氣體連續偵測、已鋪設防火毯、火花無掉落情形.. 如附相片'
+        },
+        {
+            label: '後',
+            sectionId: 'after',
+            data: formData.after,
+            footer: `動火後：現場作業已於<span style="color: #0066cc;">${formData.after.completeTime || '_________'}</span>完成，並完成環境整理無殘留火星，已填報火災預防收工前巡檢紀錄。如附相片`
+        }
+    ];
+
+    showToast('正在產生圖片，請允許下載多個檔案...', 'info');
+    const exportContainer = document.getElementById('export-container');
+
+    try {
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
+
+            exportContainer.innerHTML = '';
+            const content = createExportElement(section.label, section.data, section.footer);
+            exportContainer.appendChild(content);
+
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(exportContainer, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: 1123,
+                windowHeight: 794
+            });
+
+            // Trigger download with delay
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = `動火作業單-${section.label}-${formatDate(section.data.date) || 'unknown'}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            }, i * 1000); // Stagger downloads
+        }
+
+        showToast('圖片匯出程序已啟動', 'success');
+
+    } catch (err) {
+        console.error('Export all images failed:', err);
+        showToast('產生圖片失敗', 'error');
+    } finally {
+        // Cleanup after a delay to ensure captures are done
+        setTimeout(() => {
+            exportContainer.innerHTML = '';
+        }, 4000);
     }
 }
 
@@ -516,11 +641,22 @@ function initEventListeners() {
     // Export all PDF
     elements.exportAllBtn.addEventListener('click', exportAllPDF);
 
-    // Export individual sections
+    // Export all Images
+    elements.exportAllImageBtn.addEventListener('click', exportAllImages);
+
+    // Export individual sections (PDF)
     document.querySelectorAll('.btn-export-section').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const section = e.target.dataset.section;
             exportSectionPDF(section);
+        });
+    });
+
+    // Export individual sections (Image)
+    document.querySelectorAll('.btn-export-image').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const section = e.target.dataset.section;
+            exportSectionImage(section);
         });
     });
 

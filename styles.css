@@ -462,6 +462,35 @@ body {
     }
 
     .btn {
-        display: none;
     }
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.button-group .btn {
+    flex: 1;
+    margin-top: 0; /* Override default btn-export-section margin */
+}
+
+/* Image Export Button */
+.btn-export-image {
+    padding: 12px 16px;
+    background: rgba(255, 152, 0, 0.2);
+    color: #f57c00;
+    border: 1px solid #f57c00;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-export-image:hover {
+    background: #f57c00;
+    color: white;
 }
