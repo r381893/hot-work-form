@@ -366,15 +366,53 @@ body {
     gap: 6px;
 }
 
-.btn-new {
-    background: var(--accent-color);
-    color: white;
+.btn-help {
+    background: rgba(52, 152, 219, 0.2);
+    color: var(--accent-color);
     padding: 10px 16px;
+    border: 1px solid var(--accent-color);
 }
 
-.btn-new:hover {
-    background: #2980b9;
-    transform: translateY(-1px);
+.btn-help:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Help Modal Content */
+.help-modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.help-content {
+    color: #333;
+    line-height: 1.8;
+}
+
+.help-content h3 {
+    color: #ff6b35;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.help-content h4 {
+    color: #2c3e50;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.help-content ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.help-content li {
+    margin-bottom: 8px;
+}
+
+.help-content strong {
+    color: #ff6b35;
 }
 
 /* Footer */

@@ -20,7 +20,7 @@
                 <select id="savedFormsList">
                     <option value="">-- 選擇已儲存的表單 --</option>
                 </select>
-                <button id="newFormBtn" class="btn btn-new">+ 新增</button>
+                <button id="helpBtn" class="btn btn-help">❓ 說明</button>
             </div>
         </header>
 
@@ -400,6 +400,47 @@
             <div id="modalImageContainer"></div>
             <div class="modal-actions">
                 <button id="downloadImageBtn" class="btn btn-save">💾 下載圖片</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content help-modal-content">
+            <span class="close-modal close-help">×</span>
+            <h2 style="text-align: center; color: #ff6b35; margin-bottom: 20px;">📋 使用說明</h2>
+            <div class="help-content">
+                <h3>🔥 動火作業單 - 操作指南</h3>
+
+                <h4>📝 基本操作</h4>
+                <ul>
+                    <li><strong>切換區段：</strong>點擊上方「動火(前)」「動火(中)」「動火(後)」分頁切換</li>
+                    <li><strong>填寫表單：</strong>在各區段填入日期、公司、工作名稱、地點、時間等資訊</li>
+                    <li><strong>儲存表單：</strong>點擊底部「💾 儲存」按鈕儲存表單</li>
+                    <li><strong>載入表單：</strong>使用頂部下拉選單選擇已儲存的表單</li>
+                    <li><strong>刪除表單：</strong>點擊底部「🗑️ 刪除」按鈕刪除當前表單</li>
+                </ul>
+
+                <h4>📷 照片附加</h4>
+                <ul>
+                    <li>每個區段可附加最多 <strong>3 張照片</strong></li>
+                    <li>點擊「📷 附加照片」按鈕選擇照片或拍照</li>
+                    <li>手機會自動開啟相機讓您拍照</li>
+                    <li>點擊照片上的 ✕ 可刪除照片</li>
+                </ul>
+
+                <h4>📤 匯出圖片</h4>
+                <ul>
+                    <li>點擊各區段的「📷 匯出圖片 (Line)」按鈕</li>
+                    <li>產生的圖片包含該區段資料及附加照片</li>
+                    <li>長按圖片可分享到 Line 或儲存</li>
+                </ul>
+
+                <h4>💡 小提示</h4>
+                <ul>
+                    <li>表單會自動儲存，輸入資料後會自動備份</li>
+                    <li>所有資料儲存在您的裝置上，不會上傳到網路</li>
+                </ul>
             </div>
         </div>
     </div>

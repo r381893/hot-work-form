@@ -22,7 +22,7 @@ let sectionPhotos = {
 const elements = {
     // Selectors & Buttons
     savedFormsList: document.getElementById('savedFormsList'),
-    newFormBtn: document.getElementById('newFormBtn'),
+    helpBtn: document.getElementById('helpBtn'),
     saveBtn: document.getElementById('saveBtn'),
     deleteBtn: document.getElementById('deleteBtn'),
 
@@ -689,12 +689,20 @@ function initEventListeners() {
         });
     });
 
-    // New form
-    elements.newFormBtn.addEventListener('click', () => {
-        currentFormId = generateId();
-        clearForm();
-        elements.savedFormsList.value = '';
-        showToast('已建立新表單', 'success');
+    // Help button
+    elements.helpBtn.addEventListener('click', () => {
+        document.getElementById('helpModal').style.display = 'block';
+    });
+
+    // Close help modal
+    document.querySelector('.close-help').addEventListener('click', () => {
+        document.getElementById('helpModal').style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('helpModal')) {
+            document.getElementById('helpModal').style.display = 'none';
+        }
     });
 
     // Load saved form
