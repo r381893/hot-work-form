@@ -107,6 +107,80 @@ body {
     box-shadow: 0 0 0 3px var(--input-focus);
 }
 
+/* Tab Navigation */
+.tab-nav {
+    display: flex;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+    padding: 0 12px;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 14px 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    border-bottom: 3px solid transparent;
+    position: relative;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-btn[data-tab="before"].active {
+    color: #f39c12;
+    border-bottom-color: #f39c12;
+}
+
+.tab-btn[data-tab="during"].active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.tab-btn[data-tab="after"].active {
+    color: var(--success-color);
+    border-bottom-color: var(--success-color);
+}
+
+/* Tab Panels */
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Main Content */
 .main-content {
     flex: 1;
@@ -461,7 +535,9 @@ body {
         background: none;
     }
 
-    .btn {}
+    .btn {
+        display: none;
+    }
 }
 
 /* Button Group */
@@ -561,4 +637,108 @@ body {
 .modal-actions {
     margin-top: 20px;
     text-align: center;
+}
+
+/* Photo Attachment Styles */
+.photo-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--input-border);
+}
+
+.photo-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.btn-add-photo {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(52, 152, 219, 0.2);
+    color: var(--accent-color);
+    border: 2px dashed var(--accent-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-photo:hover {
+    background: rgba(52, 152, 219, 0.3);
+    border-style: solid;
+}
+
+.btn-add-photo:active {
+    transform: scale(0.98);
+}
+
+.photo-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.photo-gallery:empty {
+    display: none;
+}
+
+.photo-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid var(--card-border);
+    background: var(--input-bg);
+    transition: var(--transition-fast);
+}
+
+.photo-item:hover {
+    border-color: var(--primary-color);
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition-fast);
+    line-height: 1;
+}
+
+.photo-item:hover .photo-delete {
+    opacity: 1;
+}
+
+/* Always show delete button on touch devices */
+@media (hover: none) {
+    .photo-delete {
+        opacity: 1;
+    }
 }

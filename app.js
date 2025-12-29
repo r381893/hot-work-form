@@ -9,6 +9,13 @@
 const STORAGE_KEY = 'hotwork_forms_v2';
 let currentFormId = null;
 
+// Photo storage (in-memory, synced with form data)
+let sectionPhotos = {
+    before: [],
+    during: [],
+    after: []
+};
+
 // ========================================
 // DOM Elements
 // ========================================
@@ -17,7 +24,6 @@ const elements = {
     savedFormsList: document.getElementById('savedFormsList'),
     newFormBtn: document.getElementById('newFormBtn'),
     saveBtn: document.getElementById('saveBtn'),
-    exportAllImageBtn: document.getElementById('exportAllImageBtn'),
     deleteBtn: document.getElementById('deleteBtn'),
 
     // Before (動火前)
@@ -55,7 +61,15 @@ const elements = {
     imagePreviewModal: document.getElementById('imagePreviewModal'),
     modalImageContainer: document.getElementById('modalImageContainer'),
     closeModalBtn: document.querySelector('.close-modal'),
-    downloadImageBtn: document.getElementById('downloadImageBtn')
+    downloadImageBtn: document.getElementById('downloadImageBtn'),
+
+    // Photo inputs and galleries
+    beforePhotos: document.getElementById('beforePhotos'),
+    duringPhotos: document.getElementById('duringPhotos'),
+    afterPhotos: document.getElementById('afterPhotos'),
+    beforePhotoGallery: document.getElementById('beforePhotoGallery'),
+    duringPhotoGallery: document.getElementById('duringPhotoGallery'),
+    afterPhotoGallery: document.getElementById('afterPhotoGallery')
 };
 
 // ========================================
@@ -89,6 +103,139 @@ function updateCompleteTimeDisplay() {
     if (display) {
         display.textContent = elements.afterCompleteTime.value || '_________';
     }
+}
+
+// ========================================
+// Photo Handling Functions
+// ========================================
+const MAX_PHOTOS = 3;
+const MAX_PHOTO_SIZE = 1200; // Max dimension for compression (larger = better quality)
+
+// Compress image to reduce storage size
+function compressImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Scale down if necessary
+                if (width > MAX_PHOTO_SIZE || height > MAX_PHOTO_SIZE) {
+                    if (width > height) {
+                        height = (height / width) * MAX_PHOTO_SIZE;
+                        width = MAX_PHOTO_SIZE;
+                    } else {
+                        width = (width / height) * MAX_PHOTO_SIZE;
+                        height = MAX_PHOTO_SIZE;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Add photos to a section
+async function addPhotos(section, files) {
+    const currentCount = sectionPhotos[section].length;
+    const remainingSlots = MAX_PHOTOS - currentCount;
+
+    if (remainingSlots <= 0) {
+        showToast(`每個區段最多只能附加 ${MAX_PHOTOS} 張照片`, 'warning');
+        return;
+    }
+
+    const filesToAdd = Array.from(files).slice(0, remainingSlots);
+    showToast('正在處理照片...', 'info');
+
+    try {
+        for (const file of filesToAdd) {
+            const compressedImage = await compressImage(file);
+            sectionPhotos[section].push(compressedImage);
+        }
+        renderPhotoGallery(section);
+        showToast(`已新增 ${filesToAdd.length} 張照片`, 'success');
+
+        // Auto-save if form exists
+        if (currentFormId) {
+            const formData = collectFormData();
+            saveForm(currentFormId, formData);
+            updateFormsList();
+        }
+    } catch (error) {
+        console.error('Photo processing error:', error);
+        showToast('照片處理失敗', 'error');
+    }
+}
+
+// Remove a photo from a section
+function removePhoto(section, index) {
+    sectionPhotos[section].splice(index, 1);
+    renderPhotoGallery(section);
+    showToast('照片已刪除', 'success');
+
+    // Auto-save if form exists
+    if (currentFormId) {
+        const formData = collectFormData();
+        saveForm(currentFormId, formData);
+        updateFormsList();
+    }
+}
+
+// Render photo gallery for a section
+function renderPhotoGallery(section) {
+    const gallery = elements[`${section}PhotoGallery`];
+    if (!gallery) return;
+
+    gallery.innerHTML = '';
+    sectionPhotos[section].forEach((photoData, index) => {
+        const item = document.createElement('div');
+        item.className = 'photo-item';
+        item.innerHTML = `
+            <img src="${photoData}" alt="照片 ${index + 1}">
+            <button type="button" class="photo-delete" data-section="${section}" data-index="${index}">×</button>
+        `;
+        gallery.appendChild(item);
+    });
+
+    // Update add button text to show remaining slots
+    const addBtn = document.querySelector(`.btn-add-photo[data-section="${section}"]`);
+    if (addBtn) {
+        const remaining = MAX_PHOTOS - sectionPhotos[section].length;
+        if (remaining > 0) {
+            addBtn.textContent = `📷 附加照片 (剩餘 ${remaining} 張)`;
+            addBtn.disabled = false;
+            addBtn.style.opacity = '1';
+        } else {
+            addBtn.textContent = '📷 已達上限';
+            addBtn.disabled = true;
+            addBtn.style.opacity = '0.6';
+        }
+    }
+}
+
+// Clear all photos
+function clearPhotos() {
+    sectionPhotos = {
+        before: [],
+        during: [],
+        after: []
+    };
+    renderPhotoGallery('before');
+    renderPhotoGallery('during');
+    renderPhotoGallery('after');
 }
 
 // ========================================
@@ -166,7 +313,8 @@ function collectFormData() {
             workName: elements.beforeWorkName.value,
             workLocation: elements.beforeWorkLocation.value,
             workTime: getWorkTime(elements.beforeWorkTimeStart, elements.beforeWorkTimeEnd),
-            workContent: elements.beforeWorkContent.value
+            workContent: elements.beforeWorkContent.value,
+            photos: sectionPhotos.before
         },
         during: {
             date: elements.duringDate.value,
@@ -174,7 +322,8 @@ function collectFormData() {
             workName: elements.duringWorkName.value,
             workLocation: elements.duringWorkLocation.value,
             workTime: getWorkTime(elements.duringWorkTimeStart, elements.duringWorkTimeEnd),
-            workContent: elements.duringWorkContent.value
+            workContent: elements.duringWorkContent.value,
+            photos: sectionPhotos.during
         },
         after: {
             date: elements.afterDate.value,
@@ -183,7 +332,8 @@ function collectFormData() {
             workLocation: elements.afterWorkLocation.value,
             workTime: getWorkTime(elements.afterWorkTimeStart, elements.afterWorkTimeEnd),
             workContent: elements.afterWorkContent.value,
-            completeTime: elements.afterCompleteTime.value
+            completeTime: elements.afterCompleteTime.value,
+            photos: sectionPhotos.after
         },
         createdAt: currentFormId ? (getForm(currentFormId)?.createdAt || new Date().toISOString()) : new Date().toISOString()
     };
@@ -217,6 +367,14 @@ function populateForm(formData) {
     elements.afterWorkContent.value = formData.after?.workContent || '';
     elements.afterCompleteTime.value = formData.after?.completeTime || '';
 
+    // Load photos
+    sectionPhotos.before = formData.before?.photos || [];
+    sectionPhotos.during = formData.during?.photos || [];
+    sectionPhotos.after = formData.after?.photos || [];
+    renderPhotoGallery('before');
+    renderPhotoGallery('during');
+    renderPhotoGallery('after');
+
     updateCompleteTimeDisplay();
 }
 
@@ -247,6 +405,9 @@ function clearForm() {
     elements.afterWorkTimeEnd.value = '';
     elements.afterWorkContent.value = '';
     elements.afterCompleteTime.value = '';
+
+    // Clear photos
+    clearPhotos();
 
     updateCompleteTimeDisplay();
 }
@@ -289,14 +450,14 @@ function updateFormsList() {
 /**
  * Create the printable element for export
  */
-function createExportElement(section, sectionData, footerText) {
+function createExportElement(section, sectionData, footerText, photos = []) {
     const dateDisplay = formatDate(sectionData.date) || '________________';
 
     // Create a container that mimics the A4 landscape layout
     const container = document.createElement('div');
     container.style.cssText = `
         width: 297mm;
-        height: 210mm;
+        min-height: 210mm;
         padding: 20mm;
         background: white;
         font-family: "DFKai-SB", "標楷體", "KaiTi", "楷体", "BiauKai", "Microsoft JhengHei", serif;
@@ -304,6 +465,21 @@ function createExportElement(section, sectionData, footerText) {
         position: relative;
         color: #000;
     `;
+
+    // Build photos HTML if any
+    let photosHtml = '';
+    if (photos && photos.length > 0) {
+        photosHtml = `
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+                <div style="font-size: 14pt; font-weight: bold; margin-bottom: 15px;">📷 附加照片：</div>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    ${photos.map((photo, idx) => `
+                        <img src="${photo}" alt="照片${idx + 1}" style="width: 280px; height: 210px; object-fit: cover; border: 2px solid #ccc; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
 
     container.innerHTML = `
         <div style="text-align: right; font-size: 24pt; font-weight: bold; margin-bottom: 30px; letter-spacing: 5px;">動火(${section})</div>
@@ -335,7 +511,9 @@ function createExportElement(section, sectionData, footerText) {
             </div>
         </div>
 
-        <div style="margin-top: 60px; font-size: 14pt; font-weight: bold; line-height: 1.5;">${footerText}</div>
+        <div style="margin-top: 40px; font-size: 14pt; font-weight: bold; line-height: 1.5;">${footerText}</div>
+        
+        ${photosHtml}
     `;
 
     return container;
@@ -371,7 +549,7 @@ async function exportSectionImage(section) {
     const exportContainer = document.getElementById('export-container');
     exportContainer.innerHTML = ''; // Clear previous
 
-    const content = createExportElement(sectionLabel, sectionData, footerText);
+    const content = createExportElement(sectionLabel, sectionData, footerText, sectionPhotos[section]);
     exportContainer.appendChild(content);
 
     // Wait for DOM update
@@ -457,7 +635,7 @@ async function exportAllImages() {
             const section = sections[i];
 
             exportContainer.innerHTML = '';
-            const content = createExportElement(section.label, section.data, section.footer);
+            const content = createExportElement(section.label, section.data, section.footer, sectionPhotos[section.sectionId]);
             exportContainer.appendChild(content);
 
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -496,6 +674,21 @@ async function exportAllImages() {
 // Event Listeners
 // ========================================
 function initEventListeners() {
+    // Tab navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update tab panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`panel-${tabId}`).classList.add('active');
+        });
+    });
+
     // New form
     elements.newFormBtn.addEventListener('click', () => {
         currentFormId = generateId();
@@ -525,11 +718,6 @@ function initEventListeners() {
         elements.savedFormsList.value = currentFormId;
         showToast('表單已儲存', 'success');
     });
-
-
-    // Export all Images
-    elements.exportAllImageBtn.addEventListener('click', exportAllImages);
-
 
     // Export individual sections (Image)
     document.querySelectorAll('.btn-export-image').forEach(btn => {
@@ -585,6 +773,39 @@ function initEventListeners() {
     window.addEventListener('click', (e) => {
         if (e.target === elements.imagePreviewModal) {
             elements.imagePreviewModal.style.display = 'none';
+        }
+    });
+
+    // Photo attachment buttons
+    document.querySelectorAll('.btn-add-photo').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const section = e.target.dataset.section;
+            const fileInput = elements[`${section}Photos`];
+            if (fileInput) {
+                fileInput.click();
+            }
+        });
+    });
+
+    // Photo file input handlers
+    ['before', 'during', 'after'].forEach(section => {
+        const fileInput = elements[`${section}Photos`];
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    addPhotos(section, e.target.files);
+                    e.target.value = ''; // Reset input
+                }
+            });
+        }
+    });
+
+    // Photo delete buttons (event delegation)
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('photo-delete')) {
+            const section = e.target.dataset.section;
+            const index = parseInt(e.target.dataset.index, 10);
+            removePhoto(section, index);
         }
     });
 }
